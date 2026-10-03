@@ -37,3 +37,5 @@ if __name__ == "__main__":
     # make call to server
     response = stub.ListRecommendations(request)
     logger.info(response)
+
+# New change

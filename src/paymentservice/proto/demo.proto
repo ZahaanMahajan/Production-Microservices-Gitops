@@ -258,3 +258,5 @@ message Ad {
     // short advertisement text to display.
     string text = 2;
 }
+
+// New change

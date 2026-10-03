@@ -2608,3 +2608,5 @@ func file_demo_proto_init() {
 	file_demo_proto_goTypes = nil
 	file_demo_proto_depIdxs = nil
 }
+
+// New change

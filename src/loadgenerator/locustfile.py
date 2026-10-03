@@ -51,7 +51,7 @@ def addToCart(l):
     l.client.post("/cart", {
         'product_id': product,
         'quantity': random.randint(1,10)})
-    
+
 def empty_cart(l):
     l.client.post('/cart/empty')
 
@@ -70,9 +70,9 @@ def checkout(l):
         'credit_card_expiration_year': random.randint(current_year, current_year + 70),
         'credit_card_cvv': f"{random.randint(100, 999)}",
     })
-    
+
 def logout(l):
-    l.client.get('/logout')  
+    l.client.get('/logout')
 
 
 class UserBehavior(TaskSet):
@@ -90,3 +90,5 @@ class UserBehavior(TaskSet):
 class WebsiteUser(FastHttpUser):
     tasks = [UserBehavior]
     wait_time = between(1, 10)
+
+# New change
