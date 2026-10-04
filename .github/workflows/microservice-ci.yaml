@@ -8,27 +8,25 @@ on:
         type: string
 
 jobs:
+  # --------------------------------------------------
+  # Build, scan, and push the service image
+  # --------------------------------------------------
   build:
     runs-on: ubuntu-latest
+
     env:
       IMAGE_NAME: ghcr.io/zahaanmahajan/microservices/${{ inputs.service }}:sha-${{ github.sha }}
 
     steps:
-      # -------------------
-      # Checkout source
-      # -------------------
-      - name: Checkout code
+      # Checkout source code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -------------------
-      # Docker Buildx (cache support)
-      # -------------------
+      # Configure Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # -------------------
-      # Login to GHCR
-      # -------------------
+      # Authenticate with GitHub Container Registry
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -36,20 +34,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # -------------------
-      # Build Docker image (cached)
-      # -------------------
+      # Build the Docker image
       - name: Build Image
         run: |
           docker build \
             --cache-from=type=gha \
             --cache-to=type=gha,mode=max \
-            -t $IMAGE_NAME \
-            ./src/${{ inputs.service }}
+            -t "$IMAGE_NAME" \
+            "./src/${{ inputs.service }}"
 
-      # -------------------
-      # Security Scan (before push)
-      # -------------------
+      # Scan the image for vulnerabilities
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@v0.20.0
         with:
@@ -59,9 +53,7 @@ jobs:
           exit-code: 0
           vuln-type: os,library
 
-      # -------------------
-      # Push image (only if scan passes)
-      # -------------------
+      # Push the image to GHCR
       - name: Push Image
         run: |
-          docker push $IMAGE_NAME
+          docker push "$IMAGE_NAME"

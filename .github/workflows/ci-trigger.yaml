@@ -2,7 +2,8 @@ name: Microservices Trigger CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - "src/**"
 
@@ -11,16 +12,17 @@ permissions:
   packages: write
 
 jobs:
-  # -------------------------------
-  # Job 1: Detect changed services
-  # -------------------------------
+  # --------------------------------------------------
+  # Detect which services changed
+  # --------------------------------------------------
   detect-changes:
     runs-on: ubuntu-latest
+
     outputs:
       services: ${{ steps.changed.outputs.services }}
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -35,23 +37,23 @@ jobs:
             | jq -R -s -c 'split("\n")[:-1]')
 
           echo "Detected services: $SERVICES"
-          echo "services=$SERVICES" >> $GITHUB_OUTPUT
-
+          echo "services=$SERVICES" >> "$GITHUB_OUTPUT"
 
   # --------------------------------------------------
-  # Job 2: Call reusable workflow (matrix per service)
+  # Build and push each changed service
   # --------------------------------------------------
   build-and-push:
     needs: detect-changes
+
     if: needs.detect-changes.outputs.services != '[]'
 
     strategy:
       fail-fast: false
+
       matrix:
         service: ${{ fromJson(needs.detect-changes.outputs.services) }}
 
-    # 🚨 IMPORTANT:
-    # Reusable workflows are called at JOB level
+    # Reusable workflow must be called at the job level.
     uses: ./.github/workflows/microservice-ci.yaml
 
     with:
