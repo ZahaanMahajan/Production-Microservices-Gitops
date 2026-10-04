@@ -117,7 +117,12 @@ securityContext:
     drop: ["ALL"]
 
 # -- [Environment variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) for the `external-dns` container.
-env: []
+env: 
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token
+        key: api-token
 
 # -- [Liveness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) configuration for the `external-dns` container.
 # @default -- See _values.yaml_
@@ -210,12 +215,7 @@ gatewayNamespace:  # @schema type:[string, null]; default: null
 
 # -- _Kubernetes_ resources to monitor for DNS entries.
 sources:
-  - service
-  - ingress
   - gateway-httproute
-  - gateway-tlsroute
-  - gateway-tcproute
-  - gateway-udproute
 
 # -- How DNS records are synchronized between sources and providers; available values are `create-only`, `sync`, & `upsert-only`.
 policy: upsert-only  # @schema enum:[create-only, sync, upsert-only]; type:string; default: "upsert-only"
@@ -233,7 +233,8 @@ txtPrefix:  # @schema type:[string, null]; default: null
 txtSuffix:  # @schema type:[string, null]; default: null
 
 # -- Limit possible target zones by domain suffixes.
-domainFilters: []
+domainFilters:
+  - zahaan.online
 
 # -- Intentionally exclude domains from being managed.
 excludeDomains: []
@@ -250,9 +251,9 @@ annotationPrefix:  # @schema type: [string,null]; default: null
 # -- Record types to manage (default: A, AAAA, CNAME)
 managedRecordTypes: []  # @schema type: [array, null]; item: string; uniqueItems: true
 
-provider:  # @schema type: [object, string]
+provider: 
+  name: cloudflare 
   # -- _ExternalDNS_ provider name; for the available providers and how to configure them see [README](https://github.com/kubernetes-sigs/external-dns/blob/master/charts/external-dns/README.md#providers).
-  name: aws
   webhook:
     image:
       # -- (string) Image repository for the `webhook` container.
