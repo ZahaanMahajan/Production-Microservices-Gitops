@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - microservices-extra-kube-manifests/HTTProute.yaml
+  - microservices-extra-kube-manifests/target-grp.yaml
+
+helmGlobals:
+  chartHome: .
+
+helmCharts:
+  - name: onlineboutique
+    releaseName: boutique-app
+    namespace: boutique-app
+    valuesFile: onlineboutique/values.yaml
